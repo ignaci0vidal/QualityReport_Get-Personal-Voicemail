@@ -484,9 +484,19 @@
             </div>
           </div>
           <div class="notice">
-            QATC-1011671 is excluded from report statistics because additional
-            validation confirmed that the action buttons remain accessible
-            through scrolling.
+            <ul>
+              <li>
+                QATC-1011671 is excluded from report statistics because
+                additional validation confirmed that the action buttons remain
+                accessible through scrolling.
+              </li>
+              <li>
+                Quick Status playback was investigated during an incoming
+                WhatsApp call. The result was considered inconclusive because
+                support for third-party VoIP calls is not defined and the test
+                device has no cellular carrier configuration.
+              </li>
+            </ul>
           </div>
         </div>
         <div class="section">
@@ -547,7 +557,7 @@
         project: 'Get Personal Voicemail',
         build: 'Android 1.0',
         tests: {
-          total: 44,
+          total: 45,
           ok: 27,
           minor: 2,
           average: 9,
@@ -562,6 +572,15 @@
           Minor: 2,
         },
         modules: { Settings: 2, Help: 1, Greeting: 8, 'Quick Status': 5 },
+        scopeObservations: [
+          {
+            module: 'Quick Status',
+            test: 'Playback during an incoming VoIP call',
+            result: 'N/A',
+            details:
+              'The Quick Status was not played during an incoming WhatsApp call. Support for third-party VoIP calls is not specified, and the test device has no cellular carrier configuration.',
+          },
+        ],
         issues: [
           {
             id: 'QATC-1011982',
@@ -669,7 +688,8 @@
       const issueUrl = (id) => `https://jira.a1qa.com/browse/${id}`;
       const d = reportData,
         t = d.tests,
-        totalIssues = d.validDefects || d.issues.length;
+        totalIssues = d.validDefects || d.issues.length,
+        evaluableChecks = t.ok + t.critical + t.minor + t.average + t.major;
       document.getElementById('side-total').textContent = totalIssues;
       document.getElementById('kpi-tests').textContent = t.total;
       document.getElementById('kpi-passed').textContent = t.ok;
@@ -731,7 +751,7 @@
       document.getElementById('testbar').innerHTML = testSegments
         .map(
           ([n, v, c]) =>
-            `<div title="${n}: ${v}" style="width:${(v / t.total) * 100}%;background:${c}"></div>`,
+            `<div title="${n}: ${v}" style="width:${(v / evaluableChecks) * 100}%;background:${c}"></div>`,
         )
         .join('');
       document.getElementById('test-legend').innerHTML = testSegments
@@ -741,7 +761,7 @@
         )
         .join('');
       document.getElementById('test-text').innerHTML =
-        `${t.total} checks were executed: <strong>${t.ok} passed (${((t.ok / t.total) * 100).toFixed(1)}%)</strong>, ${t.critical} Critical, ${t.minor} Minor, ${t.average} Average and ${t.major} Major results.`;
+        `${t.total} checks were executed. One additional Quick Status investigation was marked N/A because VoIP call support is not specified. Evaluable results: <strong>${t.ok} passed (${((t.ok / evaluableChecks) * 100).toFixed(1)}%)</strong>, ${t.critical} Critical, ${t.minor} Minor, ${t.average} Average and ${t.major} Major results.`;
       const moduleQuality = {
         Settings: [
           'Low',
