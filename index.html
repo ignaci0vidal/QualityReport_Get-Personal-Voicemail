@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Get Personal Voicemail — Quality Report</title>
+    <style>
+      :root {
+        --blue: #0473a1;
+        --blue2: #467fc1;
+        --ink: #231f20;
+        --dark: #090707;
+        --green: #81c341;
+        --avg: #46569e;
+        --major: #ec529a;
+        --critical: #ee2f24;
+        --minor: #58b8b0;
+        --line: #d9e5ef;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #eef2f5;
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      .page {
+        width: 1180px;
+        margin: 24px auto;
+        background: #fff;
+        display: grid;
+        grid-template-columns: 340px 840px;
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.16);
+      }
+      aside {
+        background: var(--dark);
+        color: #fff;
+        padding: 26px 20px;
+        min-height: 100%;
+      }
+      main {
+        padding: 28px 24px 44px;
+      }
+      .logo {
+        display: block;
+        max-width: 210px;
+        max-height: 90px;
+        margin: 0 auto 22px;
+      }
+      .side-title {
+        font-size: 17px;
+        margin: 22px 0 12px;
+      }
+      .pair {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+      .pair .label {
+        color: var(--blue2);
+      }
+      .rule {
+        height: 1px;
+        background: linear-gradient(90deg, var(--blue), transparent);
+        margin: 18px 0;
+      }
+      .issue {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        font-size: 12px;
+        line-height: 1.65;
+      }
+      .issue a {
+        color: #39a9d6;
+        text-decoration: none;
+      }
+      .sev-dot {
+        font-size: 18px;
+        vertical-align: -2px;
+      }
+      .recommendation {
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 8px 0;
+        padding-left: 18px;
+        position: relative;
+      }
+      .recommendation:before {
+        content: '•';
+        position: absolute;
+        left: 0;
+        color: var(--blue);
+        font-size: 20px;
+      }
+      .header h1 {
+        font-size: 32px;
+        font-weight: 400;
+        margin: 0;
+      }
+      .sub {
+        color: var(--blue);
+        font-size: 16px;
+        margin-top: 4px;
+      }
+      .section {
+        margin-top: 26px;
+      }
+      .section h2 {
+        font-size: 28px;
+        font-weight: 400;
+        margin: 0 0 8px;
+      }
+      .section h3 {
+        font-size: 16px;
+        font-weight: 400;
+        margin: 20px 0 12px;
+      }
+      .line {
+        height: 1px;
+        background: var(--line);
+        margin: 8px 0 16px;
+      }
+      .body {
+        font-size: 14px;
+        line-height: 1.55;
+        text-align: justify;
+      }
+      .body strong {
+        font-weight: 700;
+      }
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin: 18px 0;
+      }
+      .kpi {
+        border: 1px solid var(--line);
+        padding: 14px 12px;
+      }
+      .kpi .n {
+        font-size: 28px;
+        color: var(--blue);
+      }
+      .kpi .t {
+        font-size: 12px;
+        color: #64717d;
+      }
+      .chart-row {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 24px;
+        align-items: center;
+      }
+      .donut {
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        margin: auto;
+        position: relative;
+        background: conic-gradient(
+          var(--major) 0 35.714%,
+          var(--avg) 35.714% 92.857%,
+          var(--minor) 92.857% 100%
+        );
+      }
+      .donut:after {
+        content: '';
+        position: absolute;
+        inset: 54px;
+        border-radius: 50%;
+        background: #fff;
+      }
+      .donut-center {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        text-align: center;
+        z-index: 2;
+      }
+      .donut-center b {
+        font-size: 34px;
+        color: var(--blue);
+      }
+      .legend {
+        display: grid;
+        grid-template-columns: repeat(3, max-content);
+        gap: 10px 22px;
+        margin-top: 14px;
+        font-size: 12px;
+      }
+      .legend span:before {
+        content: '•';
+        font-size: 24px;
+        vertical-align: -3px;
+        margin-right: 6px;
+      }
+      .bar-chart {
+        display: grid;
+        gap: 12px;
+      }
+      .bar-item {
+        display: grid;
+        grid-template-columns: 110px 1fr 30px;
+        gap: 10px;
+        align-items: center;
+        font-size: 13px;
+      }
+      .track {
+        height: 18px;
+        background: #e8eef3;
+      }
+      .fill {
+        height: 100%;
+        background: var(--blue);
+      }
+      .testbar {
+        height: 22px;
+        display: flex;
+        margin: 12px 0 8px;
+      }
+      .testbar div {
+        height: 100%;
+      }
+      .module-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .module-table th {
+        color: var(--blue);
+        font-size: 15px;
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+        padding: 8px;
+      }
+      .module-table td {
+        padding: 11px 8px;
+        border-bottom: 1px solid #edf1f4;
+        vertical-align: top;
+        line-height: 1.45;
+      }
+      .quality {
+        white-space: nowrap;
+      }
+      .quality .dot {
+        font-size: 20px;
+        vertical-align: -2px;
+      }
+      .links a {
+        color: var(--blue);
+        text-decoration: none;
+      }
+      .notice {
+        padding: 12px 14px;
+        border-left: 4px solid var(--major);
+        background: #fff5fa;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      @media (max-width: 1180px) {
+        .page {
+          width: 100%;
+          margin: 0;
+          grid-template-columns: 300px 1fr;
+        }
+        main {
+          min-width: 0;
+        }
+      }
+      @media (max-width: 820px) {
+        .page {
+          display: block;
+        }
+        aside {
+          min-height: auto;
+        }
+        .chart-row {
+          grid-template-columns: 1fr;
+        }
+        .kpis {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <aside>
+        <img
+          class="logo"
+          src="system/images/qaacademy_logo.png"
+          alt="QA Academy"
+        />
+        <div class="pair">
+          <span class="label">Smoke test:</span><span>Acceptable</span>
+        </div>
+        <div class="pair">
+          <span class="label">Acceptance test:</span><span>Low</span>
+        </div>
+        <div class="pair">
+          <span class="label">Valid issues:</span><span id="side-total"></span>
+        </div>
+        <div class="rule"></div>
+        <div class="side-title">Top severity issues</div>
+        <div id="side-issues"></div>
+        <div class="rule"></div>
+        <div class="side-title">Testing environment</div>
+        <div class="pair">
+          <span class="label">Device:</span><span>Xiaomi Mi Pad 4</span>
+        </div>
+        <div class="pair">
+          <span class="label">OS:</span><span>Android 8.1.0</span>
+        </div>
+        <div class="pair">
+          <span class="label">Firmware:</span><span>MIUI 10.0.5.0</span>
+        </div>
+        <div class="pair">
+          <span class="label">Installation:</span><span>APK</span>
+        </div>
+        <div class="pair">
+          <span class="label">Network:</span><span>Wi‑Fi</span>
+        </div>
+        <div class="rule"></div>
+        <div class="side-title">Recommendations</div>
+        <div class="recommendation">
+          Fix the maximum recording duration and invalid saved-audio duration
+          before release.
+        </div>
+        <div class="recommendation">
+          Implement independent ON/OFF controls for Quick Status as defined in
+          the design.
+        </div>
+        <div class="recommendation">
+          Fix audio-segment loss after pausing and resuming recordings.
+        </div>
+        <div class="recommendation">
+          Resolve persistence failures in “Time before greeting”.
+        </div>
+        <div class="rule"></div>
+        <div class="side-title">QA team</div>
+        <div class="pair">
+          <span class="label">Company:</span><span>QA Academy</span>
+        </div>
+        <div class="pair">
+          <span class="label">QA engineer:</span><span>Ignacio Vidal</span>
+        </div>
+        <div class="rule"></div>
+        <div class="side-title">Additional information</div>
+        <div class="pair">
+          <span class="label">Testing dates:</span><span>24–26.07.2026</span>
+        </div>
+      </aside>
+      <main>
+        <div class="header">
+          <h1>Get Personal Voicemail</h1>
+          <div class="sub">Product version: Android 1.0</div>
+        </div>
+        <div class="section">
+          <div class="body">
+            <strong>General quality analysis</strong><br />The overall quality
+            of the tested build is assessed as <strong>Low</strong>. Core
+            voicemail functionality is available, but several Major defects
+            affect recording integrity, Quick Status activation, purchase flow
+            and settings persistence. The build is not recommended for release
+            until the Major defects are fixed and regression testing is
+            completed.
+          </div>
+          <div class="kpis">
+            <div class="kpi">
+              <div class="n" id="kpi-tests"></div>
+              <div class="t">Checks executed</div>
+            </div>
+            <div class="kpi">
+              <div class="n" id="kpi-passed"></div>
+              <div class="t">Checks passed</div>
+            </div>
+            <div class="kpi">
+              <div class="n" id="kpi-issues"></div>
+              <div class="t">Valid defects</div>
+            </div>
+            <div class="kpi">
+              <div class="n">0</div>
+              <div class="t">Critical defects</div>
+            </div>
+          </div>
+          <div class="notice">
+            QATC-1011671 is excluded from report statistics because additional
+            validation confirmed that the action buttons remain accessible
+            through scrolling.
+          </div>
+        </div>
+        <div class="section">
+          <h2>Detailed quality analysis</h2>
+          <div class="line"></div>
+          <h3>Defects by severity</h3>
+          <div class="chart-row">
+            <div>
+              <div class="donut">
+                <div class="donut-center">
+                  <b id="donut-total"></b><span>defects</span>
+                </div>
+              </div>
+              <div class="legend">
+                <span style="color: var(--major)">Major</span
+                ><span style="color: var(--avg)">Average</span
+                ><span style="color: var(--minor)">Minor</span>
+              </div>
+            </div>
+            <div class="body" id="severity-text"></div>
+          </div>
+          <h3>Defects by module</h3>
+          <div class="chart-row">
+            <div class="bar-chart" id="module-bars"></div>
+            <div class="body">
+              The highest number of defects was found in the
+              <strong>Greeting</strong> module, followed by
+              <strong>Quick Status</strong>. These modules contain the most
+              important audio-recording and activation-flow risks.
+            </div>
+          </div>
+          <h3>Test execution results</h3>
+          <div class="testbar" id="testbar"></div>
+          <div class="body" id="test-text"></div>
+          <h3>Quality of separate modules</h3>
+          <table class="module-table">
+            <thead>
+              <tr>
+                <th>Module</th>
+                <th>Quality</th>
+                <th>Comments</th>
+              </tr>
+            </thead>
+            <tbody id="module-table"></tbody>
+          </table>
+        </div>
+        <div class="section">
+          <h2>Release recommendation</h2>
+          <div class="line"></div>
+          <div class="body">
+            <strong>Release is not recommended.</strong> The build should be
+            retested after the Major defects are fixed. Priority should be given
+            to recording timeout/corruption, loss of recorded segments, Quick
+            Status activation behavior, purchase flow and settings persistence.
+          </div>
+        </div>
+      </main>
+    </div>
+    <script>
+      const reportData = {
+        project: 'Get Personal Voicemail',
+        build: 'Android 1.0',
+        tests: {
+          total: 41,
+          ok: 26,
+          minor: 1,
+          average: 9,
+          major: 5,
+          critical: 0,
+        },
+        modules: { Settings: 2, Help: 1, Greeting: 6, 'Quick Status': 5 },
+        issues: [
+          {
+            id: 'QATC-1011728',
+            severity: 'Major',
+            module: 'Greeting',
+            summary:
+              'Recording times out at 9:00 and the saved greeting displays an invalid negative duration',
+          },
+          {
+            id: 'QATC-1011722',
+            severity: 'Major',
+            module: 'Quick Status',
+            summary:
+              'Only one status can be active although each status has an independent ON/OFF control in the design',
+          },
+          {
+            id: 'QATC-1011673',
+            severity: 'Major',
+            module: 'Quick Status',
+            summary:
+              'The first audio segment is discarded when recording resumes after pausing',
+          },
+          {
+            id: 'QATC-1011583',
+            severity: 'Major',
+            module: 'Greeting',
+            summary:
+              'The first audio segment is discarded when recording starts again after stopping',
+          },
+          {
+            id: 'QATC-1011581',
+            severity: 'Major',
+            module: 'Settings',
+            summary: 'Purchase flow does not open',
+          },
+          {
+            id: 'QATC-1011707',
+            severity: 'Average',
+            module: 'Settings',
+            summary: 'Time before greeting values reset to 5 seconds',
+          },
+          {
+            id: 'QATC-1011672',
+            severity: 'Average',
+            module: 'Quick Status',
+            summary: 'Multiple status recordings play simultaneously',
+          },
+          {
+            id: 'QATC-1011626',
+            severity: 'Average',
+            module: 'Quick Status',
+            summary: 'Whitespace-only title can be saved',
+          },
+          {
+            id: 'QATC-1011611',
+            severity: 'Average',
+            module: 'Quick Status',
+            summary: 'Status is not deleted',
+          },
+          {
+            id: 'QATC-1011606',
+            severity: 'Average',
+            module: 'Greeting',
+            summary: 'Greeting is deleted without confirmation',
+          },
+          {
+            id: 'QATC-1011595',
+            severity: 'Average',
+            module: 'Greeting',
+            summary: 'End time earlier than start time can be saved',
+          },
+          {
+            id: 'QATC-1011592',
+            severity: 'Average',
+            module: 'Help',
+            summary: 'Required help sections are missing',
+          },
+          {
+            id: 'QATC-1011586',
+            severity: 'Average',
+            module: 'Greeting',
+            summary: 'Repeat day labels are not displayed',
+          },
+          {
+            id: 'QATC-1011585',
+            severity: 'Minor',
+            module: 'Greeting',
+            summary: '“STOPED” is displayed when recording is paused',
+          },
+        ],
+      };
+      const sevColors = {
+        Major: 'var(--major)',
+        Average: 'var(--avg)',
+        Minor: 'var(--minor)',
+        Critical: 'var(--critical)',
+      };
+      const issueUrl = (id) => `https://jira.a1qa.com/browse/${id}`;
+      const d = reportData,
+        t = d.tests,
+        totalIssues = d.issues.length;
+      document.getElementById('side-total').textContent = totalIssues;
+      document.getElementById('kpi-tests').textContent = t.total;
+      document.getElementById('kpi-passed').textContent = t.ok;
+      document.getElementById('kpi-issues').textContent = totalIssues;
+      document.getElementById('donut-total').textContent = totalIssues;
+      document.getElementById('side-issues').innerHTML = d.issues
+        .filter((x) => x.severity === 'Major')
+        .map(
+          (x) =>
+            `<div class="issue"><a href="${issueUrl(x.id)}">${x.id}</a><span><span class="sev-dot" style="color:${sevColors[x.severity]}">•</span>${x.severity}</span></div>`,
+        )
+        .join('');
+      document.getElementById('severity-text').innerHTML =
+        `Five of ${totalIssues} valid defects (${((t.major / totalIssues) * 100).toFixed(1)}%) have Major severity. Eight defects (${((t.average / totalIssues) * 100).toFixed(1)}%) are Average and one (${((t.minor / totalIssues) * 100).toFixed(1)}%) is Minor. No Critical defects were found.`;
+      const maxModule = Math.max(...Object.values(d.modules));
+      document.getElementById('module-bars').innerHTML = Object.entries(
+        d.modules,
+      )
+        .map(
+          ([m, n]) =>
+            `<div class="bar-item"><span>${m}</span><div class="track"><div class="fill" style="width:${(n / maxModule) * 100}%"></div></div><b>${n}</b></div>`,
+        )
+        .join('');
+      const testSegments = [
+        ['OK', t.ok, 'var(--green)'],
+        ['Minor', t.minor, 'var(--minor)'],
+        ['Average', t.average, 'var(--avg)'],
+        ['Major', t.major, 'var(--major)'],
+      ];
+      document.getElementById('testbar').innerHTML = testSegments
+        .map(
+          ([n, v, c]) =>
+            `<div title="${n}: ${v}" style="width:${(v / t.total) * 100}%;background:${c}"></div>`,
+        )
+        .join('');
+      document.getElementById('test-text').innerHTML =
+        `${t.total} checks were executed: <strong>${t.ok} passed (${((t.ok / t.total) * 100).toFixed(1)}%)</strong>, ${t.minor} Minor, ${t.average} Average and ${t.major} Major results.`;
+      const moduleQuality = {
+        Settings: [
+          'Low',
+          'Purchase flow and time-before-greeting persistence are defective.',
+        ],
+        Help: [
+          'Medium',
+          'Navigation works, but required Help content is missing.',
+        ],
+        Greeting: [
+          'Low',
+          'Recording integrity, maximum duration, schedule validation and deletion confirmation contain defects.',
+        ],
+        'Quick Status': [
+          'Low',
+          'Recording, playback, deletion, title validation and independent activation contain defects.',
+        ],
+      };
+      document.getElementById('module-table').innerHTML = Object.entries(
+        moduleQuality,
+      )
+        .map(([m, [q, c]]) => {
+          const color =
+            q === 'Low'
+              ? 'var(--critical)'
+              : q === 'Medium'
+                ? 'var(--blue)'
+                : 'var(--green)';
+          const ids = d.issues
+            .filter((x) => x.module === m)
+            .map((x) => `<a href="${issueUrl(x.id)}">${x.id}</a>`)
+            .join(', ');
+          return `<tr><td>${m}</td><td class="quality"><span class="dot" style="color:${color}">•</span>${q}</td><td>${c}<div class="links">${ids}</div></td></tr>`;
+        })
+        .join('');
+    </script>
+  </body>
+</html>

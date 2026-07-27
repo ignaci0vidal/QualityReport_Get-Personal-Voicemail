@@ -1,0 +1,60 @@
+     google.charts.load('current', {
+            'packages': ['bar']
+        });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+////////////////////////////////////////////////////////////////
+///////////////INFORMACION MOSTRADA EN EL GRAFICO///////////////
+                ['Module', 'Defects'],
+                ['Home', 0],
+                ['Header', 3],
+                ['Work', 5],
+                ['Sessions', 6],
+                ['Connect', 4],
+                ['InstaOlsen', 1],
+                ['Footer', 1],
+                ['Contact', 9],
+                ['Checkout', 13],
+                ['Portrait Gallery', 4],
+                ['Clients Gallery', 6],
+                ['Travel Gallery', 1],
+                ['Lifestyle Gallery', 1]
+//////////////////////////////////////////////////////////////
+            ]);
+
+            var options = {
+                chartArea: {
+                    left: 0,
+                    top: 0,
+                    width: '95%',
+                    height: '100%'
+                },
+                colors: ['#46569e'],
+                legend: {
+                    position: 'none'
+                },
+                bars: 'horizontal',
+                fontName: 'ALSShlange_reg',
+                fontSize: 10,
+                axes: {
+                    x: {
+                        0: {
+                            side: 'top',
+                            label: ''
+                        }
+                    },
+                    y: {
+                        0: {
+                            side: 'left',
+                            label: ''
+                        }
+                    }
+                },
+            };
+
+            var chart = new google.charts.Bar(document.getElementById('barchart_modules'));
+
+            chart.draw(data, google.charts.Bar.convertOptions(options));
+        };
