@@ -192,27 +192,53 @@
       }
       .legend {
         display: grid;
-        grid-template-columns: repeat(3, max-content);
-        gap: 10px 22px;
+        grid-template-columns: 1fr;
+        gap: 6px;
         margin-top: 14px;
         font-size: 12px;
+      }
+      .legend span {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 12px;
       }
       .legend span:before {
         content: '•';
         font-size: 24px;
         vertical-align: -3px;
-        margin-right: 6px;
+      }
+      .legend em {
+        color: #4f5d68;
+        font-style: normal;
       }
       .bar-chart {
         display: grid;
-        gap: 12px;
+        gap: 10px;
       }
       .bar-item {
         display: grid;
-        grid-template-columns: 110px 1fr 30px;
+        grid-template-columns: 136px 1fr 58px;
         gap: 10px;
         align-items: center;
+        padding: 6px 8px;
         font-size: 13px;
+      }
+      .bar-item.top-module {
+        background: #fff5fa;
+        border-left: 3px solid var(--major);
+      }
+      .bar-name {
+        display: grid;
+        gap: 2px;
+      }
+      .bar-name strong {
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .bar-name span {
+        color: #64717d;
+        font-size: 11px;
       }
       .track {
         height: 18px;
@@ -220,7 +246,12 @@
       }
       .fill {
         height: 100%;
-        background: var(--blue);
+        background: var(--bar-color);
+      }
+      .bar-percent {
+        color: #4f5d68;
+        font-size: 12px;
+        text-align: right;
       }
       .testbar {
         height: 22px;
@@ -298,9 +329,25 @@
         background: #f1f8eb;
         color: #4a8f20;
       }
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 7px;
+      }
       .links a {
+        display: inline-block;
+        padding: 2px 6px;
+        border: 1px solid #cde2ee;
+        background: #f5fbfe;
+        border-radius: 4px;
         color: var(--blue);
+        font-size: 11px;
+        line-height: 1.3;
         text-decoration: none;
+      }
+      .links a:hover {
+        background: #eaf6fb;
       }
       .notice {
         padding: 12px 14px;
@@ -452,11 +499,7 @@
                   <b id="donut-total"></b><span>defects</span>
                 </div>
               </div>
-              <div class="legend">
-                <span style="color: var(--major)">Major</span
-                ><span style="color: var(--avg)">Average</span
-                ><span style="color: var(--minor)">Minor</span>
-              </div>
+              <div class="legend" id="severity-legend"></div>
             </div>
             <div class="body" id="severity-text"></div>
           </div>
@@ -624,15 +667,38 @@
             `<div class="issue"><a href="${issueUrl(x.id)}">${x.id}</a><span><span class="sev-dot" style="color:${sevColors[x.severity]}">•</span>${x.severity}</span></div>`,
         )
         .join('');
+      const severitySegments = ['Major', 'Average', 'Minor'].map((name) => {
+        const count = d.issues.filter((x) => x.severity === name).length;
+        const percent = ((count / totalIssues) * 100).toFixed(1);
+        return [name, count, percent, sevColors[name]];
+      });
+      const [majorDefects, averageDefects, minorDefects] = severitySegments;
       document.getElementById('severity-text').innerHTML =
-        `Five of ${totalIssues} valid defects (${((t.major / totalIssues) * 100).toFixed(1)}%) have Major severity. Eight defects (${((t.average / totalIssues) * 100).toFixed(1)}%) are Average and one (${((t.minor / totalIssues) * 100).toFixed(1)}%) is Minor. No Critical defects were found.`;
+        `${majorDefects[1]} valid defects (${majorDefects[2]}%) have Major severity. ${averageDefects[1]} defects (${averageDefects[2]}%) are Average and ${minorDefects[1]} defect (${minorDefects[2]}%) is Minor. No Critical defects were found.`;
+      document.getElementById('severity-legend').innerHTML = severitySegments
+        .map(
+          ([name, count, percent, color]) =>
+            `<span style="color:${color}"><b>${name}</b><em>${count} (${percent}%)</em></span>`,
+        )
+        .join('');
       const maxModule = Math.max(...Object.values(d.modules));
       document.getElementById('module-bars').innerHTML = Object.entries(
         d.modules,
       )
+        .sort((a, b) => b[1] - a[1])
         .map(
-          ([m, n]) =>
-            `<div class="bar-item"><span>${m}</span><div class="track"><div class="fill" style="width:${(n / maxModule) * 100}%"></div></div><b>${n}</b></div>`,
+          ([m, n]) => {
+            const percent = ((n / totalIssues) * 100).toFixed(1);
+            const barColor =
+              n === maxModule
+                ? 'var(--major)'
+                : n >= 5
+                  ? 'var(--avg)'
+                  : 'var(--blue)';
+            const topClass = n === maxModule ? ' top-module' : '';
+            const label = n === 1 ? 'defect' : 'defects';
+            return `<div class="bar-item${topClass}"><div class="bar-name"><strong>${m}</strong><span>${n} ${label}</span></div><div class="track"><div class="fill" style="--bar-color:${barColor};width:${(n / maxModule) * 100}%"></div></div><b class="bar-percent">${percent}%</b></div>`;
+          },
         )
         .join('');
       const testSegments = [
@@ -680,7 +746,7 @@
           const ids = d.issues
             .filter((x) => x.module === m)
             .map((x) => `<a href="${issueUrl(x.id)}">${x.id}</a>`)
-            .join(', ');
+            .join('');
           const qualityClass = q.toLowerCase();
           return `<tr><td>${m}</td><td><span class="quality ${qualityClass}">${q}</span></td><td>${c}<div class="links">${ids}</div></td></tr>`;
         })
