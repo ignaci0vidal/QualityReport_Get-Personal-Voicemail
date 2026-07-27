@@ -166,9 +166,10 @@
         margin: auto;
         position: relative;
         background: conic-gradient(
-          var(--major) 0 35.714%,
-          var(--avg) 35.714% 92.857%,
-          var(--minor) 92.857% 100%
+          var(--critical) 0 6.25%,
+          var(--major) 6.25% 37.5%,
+          var(--avg) 37.5% 87.5%,
+          var(--minor) 87.5% 100%
         );
       }
       .donut:after {
@@ -458,11 +459,11 @@
           <div class="body">
             <strong>General quality analysis</strong><br />The overall quality
             of the tested build is assessed as <strong>Low</strong>. Core
-            voicemail functionality is available, but several Major defects
-            affect recording integrity, Quick Status activation, purchase flow
-            and settings persistence. The build is not recommended for release
-            until the Major defects are fixed and regression testing is
-            completed.
+            voicemail functionality is blocked by a Critical defect, and
+            several Major defects affect recording integrity, Quick Status
+            activation, purchase flow and settings persistence. Release is not
+            recommended because the primary voicemail functionality does not
+            work.
           </div>
           <div class="kpis">
             <div class="kpi">
@@ -478,7 +479,7 @@
               <div class="t">Valid defects</div>
             </div>
             <div class="kpi">
-              <div class="n">0</div>
+              <div class="n" id="kpi-critical"></div>
               <div class="t">Critical defects</div>
             </div>
           </div>
@@ -533,10 +534,10 @@
           <h2>Release recommendation</h2>
           <div class="line"></div>
           <div class="body">
-            <strong>Release is not recommended.</strong> The build should be
-            retested after the Major defects are fixed. Priority should be given
-            to recording timeout/corruption, loss of recorded segments, Quick
-            Status activation behavior, purchase flow and settings persistence.
+            <strong>Release is not recommended.</strong> Release is not
+            recommended because the primary voicemail functionality does not
+            work. The build should be retested after the Critical and Major
+            defects are fixed.
           </div>
         </div>
       </main>
@@ -546,22 +547,29 @@
         project: 'Get Personal Voicemail',
         build: 'Android 1.0',
         tests: {
-          total: 43,
+          total: 44,
           ok: 27,
           minor: 2,
           average: 9,
           major: 5,
-          critical: 0,
+          critical: 1,
         },
-        validDefects: 15,
+        validDefects: 16,
         severity: {
-          Critical: 0,
+          Critical: 1,
           Major: 5,
           Average: 8,
           Minor: 2,
         },
-        modules: { Settings: 2, Help: 1, Greeting: 7, 'Quick Status': 5 },
+        modules: { Settings: 2, Help: 1, Greeting: 8, 'Quick Status': 5 },
         issues: [
+          {
+            id: 'NUEVO-ID',
+            severity: 'Critical',
+            module: 'Greeting',
+            summary:
+              'The active greeting is not played when an incoming call is received',
+          },
           {
             id: 'QATC-1011728',
             severity: 'Major',
@@ -666,24 +674,27 @@
       document.getElementById('kpi-tests').textContent = t.total;
       document.getElementById('kpi-passed').textContent = t.ok;
       document.getElementById('kpi-issues').textContent = totalIssues;
+      document.getElementById('kpi-critical').textContent =
+        d.severity?.Critical || t.critical || 0;
       document.getElementById('donut-total').textContent = totalIssues;
       document.getElementById('side-issues').innerHTML = d.issues
-        .filter((x) => x.severity === 'Major')
+        .filter((x) => x.severity === 'Critical' || x.severity === 'Major')
         .map(
           (x) =>
             `<div class="issue"><a href="${issueUrl(x.id)}">${x.id}</a><span><span class="sev-dot" style="color:${sevColors[x.severity]}">•</span>${x.severity}</span></div>`,
         )
         .join('');
-      const severitySegments = ['Major', 'Average', 'Minor'].map((name) => {
+      const severitySegments = ['Critical', 'Major', 'Average', 'Minor'].map((name) => {
         const count = d.severity
           ? d.severity[name]
           : d.issues.filter((x) => x.severity === name).length;
         const percent = ((count / totalIssues) * 100).toFixed(1);
         return [name, count, percent, sevColors[name]];
       });
-      const [majorDefects, averageDefects, minorDefects] = severitySegments;
+      const [criticalDefects, majorDefects, averageDefects, minorDefects] =
+        severitySegments;
       document.getElementById('severity-text').innerHTML =
-        `Five of ${totalIssues} valid defects (${majorDefects[2]}%) have Major severity. Eight defects (${averageDefects[2]}%) are Average and two defects (${minorDefects[2]}%) are Minor. No Critical defects were found.`;
+        `One of ${totalIssues} valid defects (${criticalDefects[2]}%) has Critical severity. Five defects (${majorDefects[2]}%) have Major severity. Eight defects (${averageDefects[2]}%) are Average and two defects (${minorDefects[2]}%) are Minor.`;
       document.getElementById('severity-legend').innerHTML = severitySegments
         .map(
           ([name, count, percent, color]) =>
@@ -712,6 +723,7 @@
         .join('');
       const testSegments = [
         ['OK', t.ok, 'var(--green)'],
+        ['Critical', t.critical, 'var(--critical)'],
         ['Minor', t.minor, 'var(--minor)'],
         ['Average', t.average, 'var(--avg)'],
         ['Major', t.major, 'var(--major)'],
@@ -729,7 +741,7 @@
         )
         .join('');
       document.getElementById('test-text').innerHTML =
-        `${t.total} checks were executed: <strong>${t.ok} passed (${((t.ok / t.total) * 100).toFixed(1)}%)</strong>, ${t.minor} Minor, ${t.average} Average and ${t.major} Major results.`;
+        `${t.total} checks were executed: <strong>${t.ok} passed (${((t.ok / t.total) * 100).toFixed(1)}%)</strong>, ${t.critical} Critical, ${t.minor} Minor, ${t.average} Average and ${t.major} Major results.`;
       const moduleQuality = {
         Settings: [
           'Low',
@@ -741,7 +753,7 @@
         ],
         Greeting: [
           'Low',
-          'Recording integrity, maximum duration, schedule validation and deletion confirmation contain defects.',
+          'Primary voicemail playback, recording integrity, maximum duration, schedule validation and deletion confirmation contain defects.',
         ],
         'Quick Status': [
           'Low',
