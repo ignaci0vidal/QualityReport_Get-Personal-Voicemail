@@ -546,14 +546,21 @@
         project: 'Get Personal Voicemail',
         build: 'Android 1.0',
         tests: {
-          total: 42,
+          total: 43,
           ok: 27,
-          minor: 1,
+          minor: 2,
           average: 9,
           major: 5,
           critical: 0,
         },
-        modules: { Settings: 2, Help: 1, Greeting: 6, 'Quick Status': 5 },
+        validDefects: 15,
+        severity: {
+          Critical: 0,
+          Major: 5,
+          Average: 8,
+          Minor: 2,
+        },
+        modules: { Settings: 2, Help: 1, Greeting: 7, 'Quick Status': 5 },
         issues: [
           {
             id: 'QATC-1011728',
@@ -654,7 +661,7 @@
       const issueUrl = (id) => `https://jira.a1qa.com/browse/${id}`;
       const d = reportData,
         t = d.tests,
-        totalIssues = d.issues.length;
+        totalIssues = d.validDefects || d.issues.length;
       document.getElementById('side-total').textContent = totalIssues;
       document.getElementById('kpi-tests').textContent = t.total;
       document.getElementById('kpi-passed').textContent = t.ok;
@@ -668,13 +675,15 @@
         )
         .join('');
       const severitySegments = ['Major', 'Average', 'Minor'].map((name) => {
-        const count = d.issues.filter((x) => x.severity === name).length;
+        const count = d.severity
+          ? d.severity[name]
+          : d.issues.filter((x) => x.severity === name).length;
         const percent = ((count / totalIssues) * 100).toFixed(1);
         return [name, count, percent, sevColors[name]];
       });
       const [majorDefects, averageDefects, minorDefects] = severitySegments;
       document.getElementById('severity-text').innerHTML =
-        `${majorDefects[1]} valid defects (${majorDefects[2]}%) have Major severity. ${averageDefects[1]} defects (${averageDefects[2]}%) are Average and ${minorDefects[1]} defect (${minorDefects[2]}%) is Minor. No Critical defects were found.`;
+        `Five of ${totalIssues} valid defects (${majorDefects[2]}%) have Major severity. Eight defects (${averageDefects[2]}%) are Average and two defects (${minorDefects[2]}%) are Minor. No Critical defects were found.`;
       document.getElementById('severity-legend').innerHTML = severitySegments
         .map(
           ([name, count, percent, color]) =>
