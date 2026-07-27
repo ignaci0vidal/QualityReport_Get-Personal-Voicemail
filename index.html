@@ -230,6 +230,25 @@
       .testbar div {
         height: 100%;
       }
+      .test-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 18px;
+        margin: 0 0 8px;
+        font-size: 12px;
+        color: #4f5d68;
+      }
+      .test-legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .test-legend span:before {
+        content: '';
+        width: 10px;
+        height: 10px;
+        background: var(--legend-color);
+      }
       .module-table {
         width: 100%;
         border: 1px solid var(--line);
@@ -453,6 +472,7 @@
           </div>
           <h3>Test execution results</h3>
           <div class="testbar" id="testbar"></div>
+          <div class="test-legend" id="test-legend"></div>
           <div class="body" id="test-text"></div>
           <h3>Module-level quality</h3>
           <table class="module-table">
@@ -625,6 +645,12 @@
         .map(
           ([n, v, c]) =>
             `<div title="${n}: ${v}" style="width:${(v / t.total) * 100}%;background:${c}"></div>`,
+        )
+        .join('');
+      document.getElementById('test-legend').innerHTML = testSegments
+        .map(
+          ([n, v, c]) =>
+            `<span style="--legend-color:${c}">${n}: ${v}</span>`,
         )
         .join('');
       document.getElementById('test-text').innerHTML =
