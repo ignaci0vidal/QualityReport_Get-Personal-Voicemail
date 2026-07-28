@@ -166,10 +166,10 @@
         margin: auto;
         position: relative;
         background: conic-gradient(
-          var(--critical) 0 6.25%,
-          var(--major) 6.25% 37.5%,
-          var(--avg) 37.5% 87.5%,
-          var(--minor) 87.5% 100%
+          var(--critical) 0 5.6%,
+          var(--major) 5.6% 33.4%,
+          var(--avg) 33.4% 83.4%,
+          var(--minor) 83.4% 100%
         );
       }
       .donut:after {
@@ -564,14 +564,20 @@
           major: 5,
           critical: 1,
         },
-        validDefects: 16,
+        validDefects: 18,
         severity: {
           Critical: 1,
           Major: 5,
-          Average: 8,
-          Minor: 2,
+          Average: 9,
+          Minor: 3,
         },
-        modules: { Settings: 2, Help: 1, Greeting: 8, 'Quick Status': 5 },
+        modules: {
+          Settings: 2,
+          Help: 1,
+          Greeting: 9,
+          'Quick Status': 5,
+          Trial: 1,
+        },
         scopeObservations: [
           {
             module: 'Quick Status',
@@ -677,6 +683,20 @@
             module: 'Greeting',
             summary: '“STOPED” is displayed when recording is paused',
           },
+          {
+            id: 'QATC-1012263',
+            module: 'Trial',
+            severity: 'Average',
+            summary:
+              'The free trial period and expiration date are not displayed while the trial is active',
+          },
+          {
+            id: 'QATC-1012267',
+            module: 'Greeting',
+            severity: 'Minor',
+            summary:
+              '"Recepients" is misspelled in the recipient selection screen title',
+          },
         ],
       };
       const sevColors = {
@@ -714,7 +734,7 @@
       const [criticalDefects, majorDefects, averageDefects, minorDefects] =
         severitySegments;
       document.getElementById('severity-text').innerHTML =
-        `One of ${totalIssues} valid defects (${criticalDefects[2]}%) has Critical severity. Five defects (${majorDefects[2]}%) have Major severity. Eight defects (${averageDefects[2]}%) are Average and two defects (${minorDefects[2]}%) are Minor.`;
+        `${totalIssues} valid defects were identified: ${criticalDefects[1]} Critical, ${majorDefects[1]} Major, ${averageDefects[1]} Average and ${minorDefects[1]} Minor.`;
       document.getElementById('severity-legend').innerHTML = severitySegments
         .map(
           ([name, count, percent, color]) =>
@@ -773,11 +793,15 @@
         ],
         Greeting: [
           'Low',
-          'Primary voicemail playback, recording integrity, maximum duration, schedule validation and deletion confirmation contain defects.',
+          'Primary voicemail playback, recording integrity, maximum duration, schedule validation, deletion confirmation and recipient selection text contain defects.',
         ],
         'Quick Status': [
           'Low',
           'Recording, playback, deletion, title validation and independent activation contain defects.',
+        ],
+        Trial: [
+          'Medium',
+          'Active free-trial period and expiration information are not displayed.',
         ],
       };
       document.getElementById('module-table').innerHTML = Object.entries(
