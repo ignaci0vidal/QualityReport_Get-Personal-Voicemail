@@ -556,15 +556,18 @@
       const reportData = {
         project: 'Get Personal Voicemail',
         build: 'Android 1.0',
-        tests: {
-          total: 46,
+        checksExecuted: 48,
+        checksPassed: 28,
+        validDefects: 18,
+        criticalDefects: 1,
+        testResults: {
           ok: 28,
-          minor: 2,
-          average: 9,
+          minor: 3,
+          average: 10,
           major: 5,
           critical: 1,
+          notAvailable: 1,
         },
-        validDefects: 18,
         severity: {
           Critical: 1,
           Major: 5,
@@ -707,9 +710,13 @@
       };
       const issueUrl = (id) => `https://jira.a1qa.com/browse/${id}`;
       const d = reportData,
-        t = d.tests,
+        t = {
+          total: d.checksExecuted,
+          ok: d.checksPassed,
+          ...d.testResults,
+        },
         totalIssues = d.validDefects || d.issues.length,
-        evaluableChecks = t.ok + t.critical + t.minor + t.average + t.major;
+        checksExecuted = t.total;
       document.getElementById('side-total').textContent = totalIssues;
       document.getElementById('kpi-tests').textContent = t.total;
       document.getElementById('kpi-passed').textContent = t.ok;
@@ -763,15 +770,16 @@
         .join('');
       const testSegments = [
         ['OK', t.ok, 'var(--green)'],
-        ['Critical', t.critical, 'var(--critical)'],
         ['Minor', t.minor, 'var(--minor)'],
         ['Average', t.average, 'var(--avg)'],
         ['Major', t.major, 'var(--major)'],
+        ['Critical', t.critical, 'var(--critical)'],
+        ['Not available', t.notAvailable, '#9aa7b2'],
       ];
       document.getElementById('testbar').innerHTML = testSegments
         .map(
           ([n, v, c]) =>
-            `<div title="${n}: ${v}" style="width:${(v / evaluableChecks) * 100}%;background:${c}"></div>`,
+            `<div title="${n}: ${v}" style="width:${(v / checksExecuted) * 100}%;background:${c}"></div>`,
         )
         .join('');
       document.getElementById('test-legend').innerHTML = testSegments
@@ -781,7 +789,7 @@
         )
         .join('');
       document.getElementById('test-text').innerHTML =
-        `${t.total} checks were executed. One additional Quick Status investigation was marked N/A because VoIP call support is not specified. Evaluable results: <strong>${t.ok} passed (${((t.ok / evaluableChecks) * 100).toFixed(1)}%)</strong>, ${t.critical} Critical, ${t.minor} Minor, ${t.average} Average and ${t.major} Major results.`;
+        `${t.total} checks were executed: ${t.ok} passed (${((t.ok / checksExecuted) * 100).toFixed(1)}%), ${t.minor} Minor, ${t.average} Average, ${t.major} Major, ${t.critical} Critical and ${t.notAvailable} Not available.`;
       const moduleQuality = {
         Settings: [
           'Low',
